@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional Support Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Talk To ME!</h1>
+    <div id="chat-container">
+        <div id="avatar-container">
+            <img id="avatar" src="avatar.jpg" alt="Chatbot Avatar">
+        </div>
+        <div id="chat-history"></div>
+        <form id="user-input-form">
+            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%;">
+            <button type="submit">Send</button>
+        </form>
+        <button id="listen-button">Listen</button>
+    </div>
+
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const userInputForm = document.getElementById('user-input-form');
+        const userInput = document.getElementById('user-input');
+        const listenButton = document.getElementById('listen-button');
+
+        userInputForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userMessage = userInput.value;
+            appendMessage('user', userMessage);
+            userInput.value = '';
+
+            // Make an API call to your backend with the user message
+            const chatbotResponse = await fetchChatbotResponse(userMessage);
+
+            appendMessage('chatbot', chatbotResponse);
+        });
+
+        listenButton.addEventListener('click', async () => {
+            // Use browser's SpeechRecognition API to listen and transcribe user's speech
+            const recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = async (event) => {
+                const userSpeech = event.results[0][0].transcript;
+                appendMessage('user', userSpeech);
+
+                // Make an API call to your backend with the user speech
+                const chatbotResponse = await fetchChatbotResponse(userSpeech);
+
+                appendMessage('chatbot', chatbotResponse);
+            };
+
+            recognition.start();
+        });
+
+        async function fetchChatbotResponse(userInput) {
+            // Make an API call to your chatbot backend with the user input
+            // Return the chatbot's response
+            return 'Chatbot response';  // Replace with actual response
+        }
+
+        function appendMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+        
+            if (sender === 'chatbot') {
+                const avatar = document.getElementById('avatar');
+                avatar.classList.add('speaking');
+                setTimeout(() => {
+                    avatar.classList.remove('speaking');
+                }, 500);  // Adjust this value to control the animation duration
+        
+                messageDiv.className = 'chatbot';
+            } else {
+                messageDiv.className = 'user';
+            }
+        
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    </script>
+</body>
+</html>
